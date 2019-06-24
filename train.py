@@ -113,6 +113,8 @@ FLAGS = flags.FLAGS
 flags.mark_flag_as_required('data_dir')
 flags.mark_flag_as_required('checkpoint_dir')
 
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6" # Specificy which GPU to be used
 
 def main(_):
   # Fixed seed for repeatability
