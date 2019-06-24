@@ -16,10 +16,7 @@
 
 """ Offline data generation for the KITTI dataset."""
 
-import os
 from absl import app
-from absl import flags
-from absl import logging
 import numpy as np
 import cv2
 import os, glob
@@ -28,14 +25,15 @@ import os, glob
 # Segmentation mask generation
 from gen_masks_kitti import MaskGenerator
 from alignment import align
+from gen_train_txt import generate_train_txt
 
 
 SEQ_LENGTH = 3
 WIDTH = 416
 HEIGHT = 128
 STEPSIZE = 1
-INPUT_DIR = '/usr/local/lib/struct2depth/KITTI_FULL/kitti_raw_data'
-OUTPUT_DIR = '/usr/local/lib/struct2depth/kitti_processed_data/'
+INPUT_DIR = '/usr/local/lib/KITTI_FULL/kitti_tiny'
+OUTPUT_DIR = './kitti_processed_data'
 
 
 def get_line(file, start):
@@ -89,13 +87,13 @@ def run_all():
     ct = 0
 
 
-
 # Create a segmentation mask generator
 mask_generator = MaskGenerator()
 
 if not OUTPUT_DIR.endswith('/'):
     OUTPUT_DIR = OUTPUT_DIR + '/'
 
+nan_check = False
 for d in glob.glob(INPUT_DIR + '/*/'):
     date = d.split('/')[-2]
     file_calibration = d + 'calib_cam_to_cam.txt'
@@ -143,8 +141,15 @@ for d in glob.glob(INPUT_DIR + '/*/'):
                     calib_representation = ','.join([str(c) for c in calib_current.flatten()])
 
                     img = cv2.resize(img, (WIDTH, HEIGHT))
+
+                    # Remove NaN and inf values
+                    img = np.nan_to_num(img)
+                    img[img > 255] = 255
+                    img[img < 0] = 0
+
                     big_img[:, wct * WIDTH:(wct + 1) * WIDTH] = img
                     wct += 1
+
 
                     # Generate seg_mask and add to list
                     seg_list.append(mask_generator.generate_seg_img(img))
@@ -156,8 +161,26 @@ for d in glob.glob(INPUT_DIR + '/*/'):
                 big_seg_img = np.zeros(shape=(HEIGHT, WIDTH*SEQ_LENGTH, 3))
 
                 # Create seg_mask triplet
-                for k in range(0, 3):
-                    big_seg_img[:, k * WIDTH:(k + 1) * WIDTH] = seg_list[k]
+                # for k in range(0, len(seg_list)):
+                #     big_seg_img[:, k * WIDTH:(k + 1) * WIDTH] = seg_list[k]
+                #
+                # # Remove NaN and inf values
+                # big_seg_img = np.nan_to_num(big_seg_img)
+                # big_seg_img[big_seg_img > 255] = 255
+                # big_seg_img[big_seg_img < 0] = 0
+                #
+                # if True in np.isnan(big_seg_img):
+                #     print("ERROR: Infinite values from seg image!")
+                #     nan_check = True
+                # if True in np.isinf(big_seg_img):
+                #     print("ERROR: Infinite values from seg image!")
+                #     nan_check = True
+                # if True in np.isinf(big_img):
+                #     print("ERROR: Infinite values from triplet image!")
+                #     nan_check = True
+                #
+                # if nan_check:
+                #     break
 
                 # Write triplet, seg_mask triplet, and camera intrinsics to files
                 cv2.imwrite(OUTPUT_DIR + seqname + '/' + imgnum + '.png', big_img)
@@ -166,6 +189,14 @@ for d in glob.glob(INPUT_DIR + '/*/'):
                 f.write(calib_representation)
                 f.close()
                 ct += 1
+            if nan_check:
+                break
+        if nan_check:
+            break
+    if nan_check:
+        break
+
+
 
 def main(_):
   run_all()

@@ -1,6 +1,6 @@
 import os
-from absl import app
 
+# Relative directories
 DATA_DIR = 'kitti_processed_data'
 OUTPUT_DIR = 'kitti_processed_data'
 OUTPUT_NAME = 'train'
@@ -9,12 +9,12 @@ FILE_EXT = 'png'
 
 def generate_train_txt():
     with open(OUTPUT_DIR + '/' + OUTPUT_NAME + '.txt', 'w') as f:
-        for dirpath, dirnames, files in os.walk('./' + DATA_DIR):
-            # Skip root
-            if dirpath != './' + DATA_DIR:
+        for dirpath, dirnames, files in os.walk(DATA_DIR):
+
+            if dirpath != DATA_DIR:
                 # Split directory path
-                subdir = dirpath.split('/')[2]
-                for file_name in files:
+                subdir = dirpath.split('/')[1]
+                for file_name in sorted(files):
                     frame_id = file_name.split('.')[0]
                     file_ext = file_name.split('.')[1]
 

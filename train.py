@@ -105,7 +105,7 @@ flags.DEFINE_bool('joint_encoder', False, 'Whether to share parameters '
                   'joint encoder.')
 
 ''' MODIFIED THIS TO BE FALSE FOR THE TIME BEING'''
-flags.DEFINE_bool('handle_motion', False, 'Whether to try to handle motion by '
+flags.DEFINE_bool('handle_motion', True, 'Whether to try to handle motion by '
                   'using the provided segmentation masks.')
 flags.DEFINE_string('master', 'local', 'Location of the session.')
 
@@ -121,18 +121,18 @@ def main(_):
   np.random.seed(seed)
   random.seed(seed)
 
-  if FLAGS.handle_motion and FLAGS.joint_encoder:
-    raise ValueError('Using a joint encoder is currently not supported when '
-                     'modeling object motion.')
+  # if FLAGS.handle_motion and FLAGS.joint_encoder:
+  #   raise ValueError('Using a joint encoder is currently not supported when '
+  #                    'modeling object motion.')
   if FLAGS.handle_motion and FLAGS.seq_length != 3:
     raise ValueError('The current motion model implementation only supports '
                      'using a sequence length of three.')
   if FLAGS.handle_motion and not FLAGS.compute_minimum_loss:
     raise ValueError('Computing the minimum photometric loss is required when '
                      'enabling object motion handling.')
-  # if FLAGS.size_constraint_weight > 0 and not FLAGS.handle_motion:
-  #   raise ValueError('To enforce object size constraints, enable motion '
-  #                    'handling.')
+  if FLAGS.size_constraint_weight > 0 and not FLAGS.handle_motion:
+    raise ValueError('To enforce object size constraints, enable motion '
+                     'handling.')
   if FLAGS.imagenet_ckpt and not FLAGS.imagenet_norm:
     logging.warn('When initializing with an ImageNet-pretrained model, it is '
                  'recommended to normalize the image inputs accordingly using '
@@ -180,7 +180,7 @@ def main(_):
                             depth_normalization=FLAGS.depth_normalization,
                             compute_minimum_loss=FLAGS.compute_minimum_loss,
                             use_skip=FLAGS.use_skip,
-                            joint_encoder=FLAGS.joint_encoder,
+                            joint_encoder=False,
                             handle_motion=FLAGS.handle_motion,
                             equal_weighting=FLAGS.equal_weighting,
                             size_constraint_weight=FLAGS.size_constraint_weight)

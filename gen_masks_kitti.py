@@ -74,7 +74,6 @@ class MaskGenerator:
 
         self.image = None
         self.results = None
-        self.color_code_scale = 15
 
     # # Load a random image from the images folder
     # file_names = next(os.walk(IMAGE_DIR))[2]
@@ -83,7 +82,7 @@ class MaskGenerator:
     # Run detection
     def detect(self, image):
         self.image = image
-        self.results = self.model.detect([image], verbose=1)
+        self.results = self.model.detect([image], verbose=0)
         self.results = self.results[0]
         return self.results
 
@@ -96,18 +95,34 @@ class MaskGenerator:
         # Generate instance masks with all channel values equal to the instance ID
         masks = self.results['masks']
         class_ids = self.results['class_ids']
+        rois = self.results['rois']
+        # print(rois)
+        # print(np.shape(rois))
+        # print(np.shape(masks))
         seg_img = np.zeros(shape=image.shape, dtype=np.uint8)
-
-        # seg_img = np.copy(masks[:, :, 0]) * 0
-
+        # print("Number of masks: {}".format(masks.shape[2]))
         for i in range(0, masks.shape[2]):
-            mask = masks[:, :, i]
-            class_id = class_ids[i]
-            for j in range(0, seg_img.shape[2]):
-                seg_img[:, :, j] += np.uint8(mask * class_id * self.color_code_scale)
+            # print(0.15*image.shape[0])
+            # print(0.15*image.shape[1])
+
+            # Skip if bounding box <15% image width and height
+            bb_width = rois[i][1] - rois[i][0]
+            # print(bb_width)
+            bb_height = rois[i][3] - rois[i][2]
+            # print(bb_height)
+            if bb_width > 0.15 * image.shape[0] and bb_height > 0.15 * image.shape[1]:
+                # print("Entered loop")
+                mask = masks[:, :, i]
+                # print(mask.dtype)
+                class_id = class_ids[i]
+                # print(seg_img.dtype)
+                # print(type(class_id))
+                for j in range(0, seg_img.shape[2]):
+                    seg_img[:, :, j] += np.uint8(mask * j)
 
         # Visualize seg img
         # imgplot = plt.imshow(seg_img)
+        # plt.show(imgplot)
 
         return seg_img
 

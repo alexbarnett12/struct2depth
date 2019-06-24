@@ -24,6 +24,7 @@ import os
 import random
 from absl import logging
 import tensorflow as tf
+import numpy as np
 
 import util
 

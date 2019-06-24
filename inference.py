@@ -167,6 +167,7 @@ def _run_inference(output_dir=None,
     # Collect all images to run inference on.
     im_files, basepath_in = collect_input_images(input_dir, input_list_file,
                                                  file_extension)
+    # print(im_files)
     if shuffle:
       logging.info('Shuffling data...')
       np.random.shuffle(im_files)
@@ -354,6 +355,7 @@ def collect_input_images(input_dir, input_list_file, file_extension):
     im_files = [os.path.join(basepath_in, f) for f in im_files]
   im_files = [f for f in im_files if 'disp' not in f and '-seg' not in f and
               '-fseg' not in f and '-flip' not in f]
+  print(im_files)
   return sorted(im_files), basepath_in
 
 
