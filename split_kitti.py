@@ -61,9 +61,13 @@ def main():
             os.makedirs(OUTPUT_DIR + '/' + seqname)
 
         # Move files to new directory
-        shutil.move(image_file, OUTPUT_DIR + '/' + seqname + '/' + imgnum + '.png')
-        shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '-fseg.png', OUTPUT_DIR + '/' + seqname + '/' + imgnum + '-fseg.png')
-        shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '_cam.txt', OUTPUT_DIR + '/' + seqname + '/' + imgnum + '_cam.txt')
+        if os.path.exists(DATA_DIR + '/' + seqname + '/' + imgnum + '.png') and \
+            os.path.exists(DATA_DIR + '/' + seqname + '/' + imgnum + '-fseg.png') and \
+            os.path.exists(DATA_DIR + '/' + seqname + '/' + imgnum + '_cam.txt'):
+
+            shutil.move(image_file, OUTPUT_DIR + '/' + seqname + '/' + imgnum + '.png')
+            shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '-fseg.png', OUTPUT_DIR + '/' + seqname + '/' + imgnum + '-fseg.png')
+            shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '_cam.txt', OUTPUT_DIR + '/' + seqname + '/' + imgnum + '_cam.txt')
 
         i += 10
 
