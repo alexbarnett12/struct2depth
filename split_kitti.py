@@ -56,10 +56,14 @@ def main():
         imgnum_w_ext = image_file.split('/')[2]
         imgnum = imgnum_w_ext.split('.')[0]
 
+        # Create a directory if needed
+        if not os.path.exists(OUTPUT_DIR + '/' + seqname):
+            os.makedirs(OUTPUT_DIR + '/' + seqname)
+
         # Move files to new directory
-        shutil.move(image_file, 'kitti_test_set')
-        shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '-fseg.png', 'kitti_test_set')
-        shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '_cam.txt', 'kitti_test_set')
+        shutil.move(image_file, OUTPUT_DIR + '/' + seqname + '/' + imgnum + '.png')
+        shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '-fseg.png', OUTPUT_DIR + '/' + seqname + '/' + imgnum + '-fseg.png')
+        shutil.move(DATA_DIR + '/' + seqname + '/' + imgnum + '_cam.txt', OUTPUT_DIR + '/' + seqname + '/' + imgnum + '_cam.txt')
 
         i += 10
 
